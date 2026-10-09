@@ -64,6 +64,24 @@ public class FirstTests
         Assert.That(invalidLoginMessage.Text, Is.EqualTo("Your username is invalid!"));
     }
 
+    [Test]
+    public void LoginPage_HasInvalidPassword()
+    {
+        _driver.Navigate().GoToUrl("https://practice.expandtesting.com/login");
+
+        var usernameField = _driver.FindElement(By.Id("username"));
+        var passwordField = _driver.FindElement(By.Id("password"));
+        var loginButton = _driver.FindElement(By.CssSelector("button[type='submit']"));
+
+        usernameField.SendKeys("practice");
+        passwordField.SendKeys("SuperSecretPassword");
+        loginButton.Click();
+
+        var invalidPasswordMessage = _driver.FindElement(By.Id("flash"));
+
+        Assert.That(invalidPasswordMessage.Text, Is.EqualTo("Your password is invalid!"));
+    }
+
     [TearDown]
     public void TearDown()
     {
