@@ -55,7 +55,7 @@ public class FirstTests
         var passwordField = _driver.FindElement(By.Id("password"));
         var loginButton = _driver.FindElement(By.CssSelector("button[type='submit']"));
 
-        usernameField.SendKeys("wrongUser");
+        usernameField.SendKeys("wrongUser1");
         passwordField.SendKeys("SuperSecretPassword!");
         loginButton.Click();
 
