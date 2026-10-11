@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Internal;
+using OpenQA.Selenium.Support.UI;
 
 namespace SeleniumCourse;
 
@@ -14,7 +14,6 @@ public class FirstTests
     {
         _driver = new ChromeDriver();
         _driver.Manage().Window.Maximize();
-        _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
     }
 
     [Test]
@@ -28,7 +27,7 @@ public class FirstTests
     }
 
     [Test]
-    public void LoginPage_HasSuccessfulLogin()
+    public void Login_WithValidCredentials_ShowsSuccessMessage()
     {
         _driver.Navigate().GoToUrl("https://practice.expandtesting.com/login");
 
@@ -40,14 +39,15 @@ public class FirstTests
         passwordField.SendKeys("SuperSecretPassword!");
         loginButton.Click();
 
-        var successfulLoginMessage = _driver.FindElement(By.Id("flash"));
+        var wait = new WebDriverWait(_driver,
+                                 TimeSpan.FromSeconds(10));
+        var successfulLoginMessage = wait.Until(d => d.FindElement(By.Id("flash")));
 
         Assert.That(successfulLoginMessage.Text, Is.EqualTo("You logged into a secure area!"));
-
     }
 
     [Test]
-    public void LoginPage_HasInvalidLogin()
+    public void Login_WithInvalidUsername_ShowsError()
     {
         _driver.Navigate().GoToUrl("https://practice.expandtesting.com/login");
 
@@ -55,17 +55,19 @@ public class FirstTests
         var passwordField = _driver.FindElement(By.Id("password"));
         var loginButton = _driver.FindElement(By.CssSelector("button[type='submit']"));
 
-        usernameField.SendKeys("p");
+        usernameField.SendKeys("wrongUser");
         passwordField.SendKeys("SuperSecretPassword!");
         loginButton.Click();
 
-        var invalidLoginMessage = _driver.FindElement(By.Id("flash"));
+        var wait = new WebDriverWait(_driver,
+                                 TimeSpan.FromSeconds(10));
+        var invalidLoginMessage = wait.Until(d => d.FindElement(By.Id("flash")));
 
         Assert.That(invalidLoginMessage.Text, Is.EqualTo("Your username is invalid!"));
     }
 
     [Test]
-    public void LoginPage_HasInvalidPassword()
+    public void Login_WithInvalidPassword_ShowsError()
     {
         _driver.Navigate().GoToUrl("https://practice.expandtesting.com/login");
 
@@ -74,10 +76,12 @@ public class FirstTests
         var loginButton = _driver.FindElement(By.CssSelector("button[type='submit']"));
 
         usernameField.SendKeys("practice");
-        passwordField.SendKeys("SuperSecretPassword");
+        passwordField.SendKeys("wrongPassword");
         loginButton.Click();
 
-        var invalidPasswordMessage = _driver.FindElement(By.Id("flash"));
+        var wait = new WebDriverWait(_driver,
+                                 TimeSpan.FromSeconds(10));
+        var invalidPasswordMessage = wait.Until(d => d.FindElement(By.Id("flash")));
 
         Assert.That(invalidPasswordMessage.Text, Is.EqualTo("Your password is invalid!"));
     }
