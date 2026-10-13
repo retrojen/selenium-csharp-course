@@ -21,24 +21,24 @@ public class FirstTests
     [Test]
     public void LoginPage_HasCorrectHeader()
     {
-        _driver.Navigate().GoToUrl("https://the-internet.herokuapp.com/login");
+        OpenLoginPage();
 
         var header = _driver.FindElement(By.TagName("h2"));
 
-        Assert.That(header.Text, Is.EqualTo("Login Page"));
+        Assert.That(header.Text, Is.EqualTo("How to test the login page?"));
     }
 
     [Test]
     public void Login_WithValidCredentials_ShowsSuccessMessage()
     {
-        _driver.Navigate().GoToUrl("https://practice.expandtesting.com/login");
+        OpenLoginPage();
 
         var usernameField = _driver.FindElement(By.Id("username"));
         var passwordField = _driver.FindElement(By.Id("password"));
         var loginButton = _driver.FindElement(By.CssSelector("button[type='submit']"));
 
-        usernameField.SendKeys("practice");
-        passwordField.SendKeys("SuperSecretPassword!");
+        usernameField.SendKeys(ValidUsername);
+        passwordField.SendKeys(ValidPassword);
         loginButton.Click();
 
         var successfulLoginMessage = _wait.Until(d => d.FindElement(By.Id("flash")));
@@ -49,7 +49,7 @@ public class FirstTests
     [Test]
     public void Login_WithInvalidUsername_ShowsError()
     {
-        _driver.Navigate().GoToUrl("https://practice.expandtesting.com/login");
+        OpenLoginPage();
 
         var usernameField = _driver.FindElement(By.Id("username"));
         var passwordField = _driver.FindElement(By.Id("password"));
@@ -57,7 +57,7 @@ public class FirstTests
 
         var nonExistentUser = $"user_{Guid.NewGuid()}";
         usernameField.SendKeys(nonExistentUser);
-        passwordField.SendKeys("SuperSecretPassword!");
+        passwordField.SendKeys(ValidPassword);
         loginButton.Click();
 
         var invalidLoginMessage = _wait.Until(d => d.FindElement(By.Id("flash")));
@@ -68,14 +68,14 @@ public class FirstTests
     [Test]
     public void Login_WithInvalidPassword_ShowsError()
     {
-        _driver.Navigate().GoToUrl("https://practice.expandtesting.com/login");
+        OpenLoginPage();
 
         var usernameField = _driver.FindElement(By.Id("username"));
         var passwordField = _driver.FindElement(By.Id("password"));
         var loginButton = _driver.FindElement(By.CssSelector("button[type='submit']"));
 
         var incorrectPassword = Guid.NewGuid().ToString();
-        usernameField.SendKeys("practice");
+        usernameField.SendKeys(ValidUsername);
         passwordField.SendKeys(incorrectPassword);
         loginButton.Click();
 
@@ -87,8 +87,17 @@ public class FirstTests
     [TearDown]
     public void TearDown()
     {
-        _driver.Quit();     // закрывает браузер и драйвер
+        _driver.Quit();
         _driver.Dispose();
     }
+
+    private void OpenLoginPage()
+    {
+        _driver.Navigate().GoToUrl(LoginUrl);
+    }
+
+    private const string LoginUrl = "https://practice.expandtesting.com/login";
+    private const string ValidUsername = "practice";
+    private const string ValidPassword = "SuperSecretPassword!";
 
 }
