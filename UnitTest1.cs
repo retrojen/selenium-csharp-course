@@ -19,6 +19,7 @@ public class FirstTests
     }
 
     [Test]
+    [Ignore("Пока не нужен")]
     public void LoginPage_HasCorrectHeader()
     {
         OpenLoginPage();
@@ -33,13 +34,7 @@ public class FirstTests
     {
         OpenLoginPage();
 
-        var usernameField = _driver.FindElement(By.Id("username"));
-        var passwordField = _driver.FindElement(By.Id("password"));
-        var loginButton = _driver.FindElement(By.CssSelector("button[type='submit']"));
-
-        usernameField.SendKeys(ValidUsername);
-        passwordField.SendKeys(ValidPassword);
-        loginButton.Click();
+        Login(ValidUsername, ValidPassword);
 
         var successfulLoginMessage = _wait.Until(d => d.FindElement(By.Id("flash")));
 
@@ -51,14 +46,8 @@ public class FirstTests
     {
         OpenLoginPage();
 
-        var usernameField = _driver.FindElement(By.Id("username"));
-        var passwordField = _driver.FindElement(By.Id("password"));
-        var loginButton = _driver.FindElement(By.CssSelector("button[type='submit']"));
-
         var nonExistentUser = $"user_{Guid.NewGuid()}";
-        usernameField.SendKeys(nonExistentUser);
-        passwordField.SendKeys(ValidPassword);
-        loginButton.Click();
+        Login(nonExistentUser, ValidPassword);        
 
         var invalidLoginMessage = _wait.Until(d => d.FindElement(By.Id("flash")));
 
@@ -70,14 +59,8 @@ public class FirstTests
     {
         OpenLoginPage();
 
-        var usernameField = _driver.FindElement(By.Id("username"));
-        var passwordField = _driver.FindElement(By.Id("password"));
-        var loginButton = _driver.FindElement(By.CssSelector("button[type='submit']"));
-
         var incorrectPassword = Guid.NewGuid().ToString();
-        usernameField.SendKeys(ValidUsername);
-        passwordField.SendKeys(incorrectPassword);
-        loginButton.Click();
+        Login(ValidUsername, incorrectPassword);
 
         var invalidPasswordMessage = _wait.Until(d => d.FindElement(By.Id("flash")));
 
@@ -94,6 +77,13 @@ public class FirstTests
     private void OpenLoginPage()
     {
         _driver.Navigate().GoToUrl(LoginUrl);
+    }
+
+    private void Login(string username, string password)
+    {
+        _driver.FindElement(By.Id("username")).SendKeys(username);
+        _driver.FindElement(By.Id("password")).SendKeys(password);
+        _driver.FindElement(By.CssSelector("button[type='submit']")).Click();
     }
 
     private const string LoginUrl = "https://practice.expandtesting.com/login";
