@@ -1,14 +1,21 @@
 ﻿using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.DevTools.V152.CSS;
 using OpenQA.Selenium.Support.UI;
 
 namespace SeleniumCourse;
 
 public class FirstTests
 {
+    private const string LoginUrl = "https://practice.expandtesting.com/login";
+    private const string ValidUsername = "practice";
+    private const string ValidPassword = "SuperSecretPassword!";
+
     private IWebDriver _driver = null!;
     private WebDriverWait _wait = null!;
+    private static readonly By LogoutButton = By.CssSelector("a[href='/logout']");
+    private static readonly By LoginButton = By.CssSelector("button[type='submit']"));
 
     [SetUp]
     public void SetUp()
@@ -19,14 +26,13 @@ public class FirstTests
     }
 
     [Test]
-    [Ignore("Пока не нужен")]
     public void LoginPage_HasCorrectHeader()
     {
         OpenLoginPage();
 
-        var header = _driver.FindElement(By.TagName("h2"));
+        var header = _driver.FindElement(By.TagName("h1"));
 
-        Assert.That(header.Text, Is.EqualTo("How to test the login page?"));
+        Assert.That(header.Text, Is.EqualTo("Test Login page for Automation Testing Practice"));
     }
 
     [Test]
@@ -62,7 +68,7 @@ public class FirstTests
     }
 
     [Test]
-    public void Login_EmptyFields_ShowsError()
+    public void Login_WithEmptyFields_ShowsError()
     {
         OpenLoginPage();
 
@@ -72,17 +78,11 @@ public class FirstTests
     }
 
     [Test]
-    public void Logout_HasCorrect()
+    public void Logout_AfterLogin_ShowsLogoutMessage()
     {
-        OpenLoginPage();
+        Logout();
 
-        SuccessfulLogin();
-
-        var LogoutButton = _driver.FindElement(By.CssSelector("a[href='/logout']"));
-
-        LogoutButton.Click();
-
-        Assert.That(GetFlashMessage(),Is.EqualTo("You logged out of the secure area!"));
+        Assert.That(GetFlashMessage(), Is.EqualTo("You logged out of the secure area!"));
     }
 
     [TearDown]
@@ -101,15 +101,23 @@ public class FirstTests
     {
         _driver.FindElement(By.Id("username")).SendKeys(username);
         _driver.FindElement(By.Id("password")).SendKeys(password);
-        _driver.FindElement(By.CssSelector("button[type='submit']")).Click();
+        _driver.FindElement(LoginButton).Click();
     }
 
-    private void SuccessfulLogin()
+    private void LoginAsValidUser()
     {
-        _driver.FindElement(By.Id("username")).SendKeys(ValidUsername);
-        _driver.FindElement(By.Id("password")).SendKeys(ValidPassword);
-        _driver.FindElement(By.CssSelector("button[type='submit']")).Click();
-        _driver.FindElement(By.CssSelector("a[href='/logout']"));
+        Login(ValidUsername, ValidPassword);
+        _wait.Until(d => d.FindElement(LogoutButton));
+    }
+
+    private void Logout()
+    {
+        OpenLoginPage();
+
+        LoginAsValidUser();
+
+        _driver.FindElement(LogoutButton).Click();
+       _wait.Until(d => d.FindElement(LoginButton));
     }
 
     private string GetFlashMessage()
@@ -117,9 +125,4 @@ public class FirstTests
         var flash = _wait.Until(d => d.FindElement(By.Id("flash")));
         return flash.Text;
     }
-
-    private const string LoginUrl = "https://practice.expandtesting.com/login";
-    private const string ValidUsername = "practice";
-    private const string ValidPassword = "SuperSecretPassword!";
-
 }
