@@ -1,7 +1,5 @@
-﻿using NUnit.Framework;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.DevTools.V152.CSS;
 using OpenQA.Selenium.Support.UI;
 
 namespace SeleniumCourse;
@@ -14,8 +12,11 @@ public class FirstTests
 
     private IWebDriver _driver = null!;
     private WebDriverWait _wait = null!;
+
+    private static readonly By UsernameField = By.Id("username");
+    private static readonly By PasswordField = By.Id("password");
     private static readonly By LogoutButton = By.CssSelector("a[href='/logout']");
-    private static readonly By LoginButton = By.CssSelector("button[type='submit']"));
+    private static readonly By LoginButton = By.CssSelector("button[type='submit']");
 
     [SetUp]
     public void SetUp()
@@ -80,6 +81,10 @@ public class FirstTests
     [Test]
     public void Logout_AfterLogin_ShowsLogoutMessage()
     {
+        OpenLoginPage();
+
+        LoginAsValidUser();
+
         Logout();
 
         Assert.That(GetFlashMessage(), Is.EqualTo("You logged out of the secure area!"));
@@ -99,8 +104,8 @@ public class FirstTests
 
     private void Login(string username, string password)
     {
-        _driver.FindElement(By.Id("username")).SendKeys(username);
-        _driver.FindElement(By.Id("password")).SendKeys(password);
+        _driver.FindElement(UsernameField).SendKeys(username);
+        _driver.FindElement(PasswordField).SendKeys(password);
         _driver.FindElement(LoginButton).Click();
     }
 
@@ -112,11 +117,7 @@ public class FirstTests
 
     private void Logout()
     {
-        OpenLoginPage();
-
-        LoginAsValidUser();
-
-        _driver.FindElement(LogoutButton).Click();
+       _driver.FindElement(LogoutButton).Click();
        _wait.Until(d => d.FindElement(LoginButton));
     }
 
