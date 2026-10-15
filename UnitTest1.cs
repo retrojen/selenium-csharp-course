@@ -36,9 +36,7 @@ public class FirstTests
 
         Login(ValidUsername, ValidPassword);
 
-        var successfulLoginMessage = _wait.Until(d => d.FindElement(By.Id("flash")));
-
-        Assert.That(successfulLoginMessage.Text, Is.EqualTo("You logged into a secure area!"));
+        Assert.That(GetFlashMessage(), Is.EqualTo("You logged into a secure area!"));
     }
 
     [Test]
@@ -49,9 +47,7 @@ public class FirstTests
         var nonExistentUser = $"user_{Guid.NewGuid()}";
         Login(nonExistentUser, ValidPassword);        
 
-        var invalidLoginMessage = _wait.Until(d => d.FindElement(By.Id("flash")));
-
-        Assert.That(invalidLoginMessage.Text, Is.EqualTo("Your username is invalid!"));
+        Assert.That(GetFlashMessage(), Is.EqualTo("Your username is invalid!"));
     }
 
     [Test]
@@ -62,9 +58,31 @@ public class FirstTests
         var incorrectPassword = Guid.NewGuid().ToString();
         Login(ValidUsername, incorrectPassword);
 
-        var invalidPasswordMessage = _wait.Until(d => d.FindElement(By.Id("flash")));
+        Assert.That(GetFlashMessage(), Is.EqualTo("Your password is invalid!"));
+    }
 
-        Assert.That(invalidPasswordMessage.Text, Is.EqualTo("Your password is invalid!"));
+    [Test]
+    public void Login_EmptyFields_ShowsError()
+    {
+        OpenLoginPage();
+
+        Login("", "");
+
+        Assert.That(GetFlashMessage(), Is.EqualTo("Your username is invalid!"));
+    }
+
+    [Test]
+    public void Logout_HasCorrect()
+    {
+        OpenLoginPage();
+
+        SuccessfulLogin();
+
+        var LogoutButton = _driver.FindElement(By.CssSelector("a[href='/logout']"));
+
+        LogoutButton.Click();
+
+        Assert.That(GetFlashMessage(),Is.EqualTo("You logged out of the secure area!"));
     }
 
     [TearDown]
@@ -84,6 +102,20 @@ public class FirstTests
         _driver.FindElement(By.Id("username")).SendKeys(username);
         _driver.FindElement(By.Id("password")).SendKeys(password);
         _driver.FindElement(By.CssSelector("button[type='submit']")).Click();
+    }
+
+    private void SuccessfulLogin()
+    {
+        _driver.FindElement(By.Id("username")).SendKeys(ValidUsername);
+        _driver.FindElement(By.Id("password")).SendKeys(ValidPassword);
+        _driver.FindElement(By.CssSelector("button[type='submit']")).Click();
+        _driver.FindElement(By.CssSelector("a[href='/logout']"));
+    }
+
+    private string GetFlashMessage()
+    {
+        var flash = _wait.Until(d => d.FindElement(By.Id("flash")));
+        return flash.Text;
     }
 
     private const string LoginUrl = "https://practice.expandtesting.com/login";
