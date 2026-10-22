@@ -6,16 +6,15 @@ namespace SeleniumCourse;
 
 public class TablesTests
 {
-    private IWebDriver _driver = null!;
-    private WebDriverWait _wait = null!;
     private const string TablesUrl = "https://practice.expandtesting.com/tables";
+
+    private IWebDriver _driver = null!;
 
     [SetUp]
     public void SetUp()
     {
         _driver = new ChromeDriver();
         _driver.Manage().Window.Maximize();
-        _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
     }
 
     [Test]
@@ -23,14 +22,14 @@ public class TablesTests
     {
         OpenTablesPage();
 
-        var table = CustomersTable("table1");
-        var rows = table.FindElements(By.CssSelector("tbody tr")).Count();
+        var table = FindCustomersTable("table1");
+        var rowCount = table.FindElements(By.CssSelector("tbody tr")).Count();
 
-        Assert.That(rows, Is.EqualTo(4));
+        Assert.That(rowCount, Is.EqualTo(4));
     }
 
     [Test]
-    public void CustomersTable_ShouldDisplayEmailForClient()
+    public void CustomersTable_ShowsEmailForClient()
     {
         OpenTablesPage();
 
@@ -41,7 +40,7 @@ public class TablesTests
     }
 
     [Test]
-    public void CustomersTable_ShouldDisplayCorrectAmountForClient()
+    public void CustomersTable_ShowsCorrectAmountForClient()
     {
         OpenTablesPage();
 
@@ -68,8 +67,8 @@ public class TablesTests
         return _driver.FindElement(By.XPath($"//table[@id='{tableId}']//tr[td[text()='{lastName}']]"));
     }
 
-    private IWebElement CustomersTable(string tableId)
+    private IWebElement FindCustomersTable(string tableId)
     {
-        return _driver.FindElement(By.XPath($"//table[@id='{tableId}']//tbody"));
+        return _driver.FindElement(By.XPath($"//table[@id='{tableId}']"));
     }
 }
